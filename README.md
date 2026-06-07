@@ -68,7 +68,7 @@ Documents (PDF / TXT / USAJobs API)
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/michael-demissie/docuquery.git
+git clone https://github.com/Getnet-Mulugeta/docuquery.git
 cd docuquery
 ```
 
@@ -188,8 +188,8 @@ docuquery/
 
 ## Author
 
-**Michael Mulugeta Demissie** — Data Engineer
+**Getnet Mulugeta** — Data Engineer
 
-- Portfolio: https://michael-demissie.github.io
-- GitHub: https://github.com/michael-demissie
-- LinkedIn: https://www.linkedin.com/in/michael-mulugeta-demissie/
+- Portfolio: https://getnet-mulugeta.github.io/
+- GitHub: https://github.com/Getnet-Mulugeta
+- LinkedIn: https://www.linkedin.com/in/getnet-demissie
