@@ -55,6 +55,7 @@ class IngestRequest(BaseModel):
     content: str
     mode: str = "personal"
     session_id: str = "default"
+    app: str = "querymind"
 
 class Message(BaseModel):
     role: str
@@ -78,8 +79,8 @@ def ingest(request: IngestRequest, conn=Depends(get_db)):
 
     doc = execute_query(
         conn,
-        "INSERT INTO documents (title, source, mode, session_id) VALUES (%s, %s, %s, %s) RETURNING id",
-        (request.title, request.source, request.mode, request.session_id)
+        "INSERT INTO documents (title, source, mode, session_id, app) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+        (request.title, request.source, request.mode, request.session_id, request.app)
     )
     document_id = doc[0]["id"]
 
@@ -105,7 +106,7 @@ def query(request: Request, body: QueryRequest, conn=Depends(get_db)):
                1 - (c.embedding <=> %s::vector) AS similarity
         FROM chunks c
         JOIN documents d ON c.document_id = d.id
-        WHERE d.mode = %s AND (d.session_id = %s OR d.session_id = 'default')
+        WHERE d.mode = %s AND d.app = 'querymind' AND (d.session_id = %s OR d.session_id = 'default')
         ORDER BY c.embedding <=> %s::vector
         LIMIT %s
         """,
@@ -201,8 +202,8 @@ async def upload_file(request: Request, file: UploadFile = File(...), title: str
 
     doc = execute_query(
         conn,
-        "INSERT INTO documents (title, source, mode, session_id) VALUES (%s, %s, %s, %s) RETURNING id",
-        (doc_title, file.filename, "personal", session_id)
+        "INSERT INTO documents (title, source, mode, session_id, app) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+        (doc_title, file.filename, "personal", session_id, "querymind")
     )
     document_id = doc[0]["id"]
 
