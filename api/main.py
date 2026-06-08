@@ -106,11 +106,11 @@ def query(request: Request, body: QueryRequest, conn=Depends(get_db)):
                1 - (c.embedding <=> %s::vector) AS similarity
         FROM chunks c
         JOIN documents d ON c.document_id = d.id
-        WHERE d.mode = %s AND d.app = 'querymind' AND (d.session_id = %s OR d.session_id = 'default')
+        WHERE d.mode = %s AND (d.mode = 'jobs' OR (d.app = 'querymind' AND (d.session_id = %s OR d.session_id = 'default')))
         ORDER BY c.embedding <=> %s::vector
         LIMIT %s
         """,
-        (question_embedding, body.mode, body.session_id, question_embedding, body.top_k)
+        (question_embedding, body.mode, body.session_id if body.mode != 'jobs' else 'default', question_embedding, body.top_k)
     )
 
     if not results:
