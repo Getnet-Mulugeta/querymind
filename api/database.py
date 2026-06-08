@@ -4,7 +4,7 @@ from psycopg2 import pool
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=False)
 
 connection_pool = pool.SimpleConnectionPool(
     minconn=1,
