@@ -3,508 +3,800 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>DocuQuery</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>QueryMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 
-:root {
-  --accent:#0066ff;
-  --accent-light:#f0f5ff;
-  --accent-border:#c0d8ff;
-  --accent-text:#0066ff;
-  --user-bubble:#0066ff;
-  --bg:#fafaf8;
-  --surface:#fff;
-  --surface2:#f5f5f2;
-  --surface3:#f0f0ec;
-  --border:#e8e8e4;
-  --border2:#e0e0dc;
-  --text:#1a1a18;
-  --text2:#666;
-  --text3:#bbb;
-  --text4:#ddd;
+/* ── SHARED ── */
+body {
+  font-family:'Inter',sans-serif;
+  height:100vh;overflow:hidden;
+  transition:background 0.6s ease;
 }
 
-body.mode-jobs {
-  --accent:#d97706;
-  --accent-light:#fffbeb;
-  --accent-border:#fcd34d;
-  --accent-text:#b45309;
-  --user-bubble:#d97706;
+/* ── PAGE TRANSITION OVERLAY ── */
+.page-morph {
+  position:fixed;inset:0;z-index:999;
+  background:#000;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+.page-morph.active {opacity:1;pointer-events:all}
+
+/* ════════════════════════════════
+   PERSONAL MODE — THE STUDY ROOM
+   ════════════════════════════════ */
+#personal-view {
+  display:flex;
+  width:100%;height:100vh;
+  background:#f5f0e8;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(180,140,80,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(100,80,60,0.04) 0%, transparent 50%);
+  position:relative;
 }
 
-body {font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;overflow:hidden;transition:background 0.3s}
-
-/* ── SIDEBAR ── */
-.sidebar {
-  width:265px;min-width:265px;
-  background:var(--surface);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;height:100vh;
-  transition:background 0.3s,border-color 0.3s;
+/* notebook lines on main area */
+#personal-view::before {
+  content:'';
+  position:absolute;
+  top:0;left:280px;right:0;bottom:0;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    rgba(180,150,100,0.12) 27px,
+    rgba(180,150,100,0.12) 28px
+  );
+  pointer-events:none;z-index:0;
 }
-.s-head {padding:18px 16px 14px;border-bottom:1px solid var(--border)}
-.logo {display:flex;align-items:center;gap:9px;margin-bottom:14px}
-.logo-mark {
-  width:30px;height:30px;
-  background:var(--text);
-  border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-  transition:background 0.3s;
-}
-.logo-mark svg {width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.logo-name {font-size:0.95rem;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
-.logo-name span {color:var(--accent);transition:color 0.3s}
 
-/* mode switcher */
-.mode-wrap {position:relative;margin-bottom:0}
-.mode-btn {
+/* left margin red line */
+#personal-view::after {
+  content:'';
+  position:absolute;
+  top:0;left:320px;bottom:0;width:1px;
+  background:rgba(200,100,100,0.15);
+  pointer-events:none;z-index:1;
+}
+
+/* document strip */
+.doc-strip {
+  width:260px;min-width:260px;
+  background:#ede8de;
+  border-right:1px solid rgba(180,150,100,0.2);
+  display:flex;flex-direction:column;
+  height:100vh;position:relative;z-index:2;
+  padding:0;
+}
+.doc-strip-head {
+  padding:20px 18px 14px;
+  border-bottom:1px solid rgba(180,150,100,0.2);
+}
+.p-logo {
+  display:flex;align-items:center;gap:9px;margin-bottom:14px;
+}
+.p-logo-mark {
+  width:28px;height:28px;
+  background:#2c2420;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.p-logo-mark svg {width:13px;height:13px;stroke:#e8dcc8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.p-logo-name {font-family:'Lora',serif;font-size:0.88rem;font-weight:500;color:#2c2420;letter-spacing:-0.2px}
+.p-logo-name span {color:#8b6914}
+
+.mode-toggle-btn {
   width:100%;display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface2);border:1px solid var(--border2);
-  border-radius:9px;padding:8px 12px;cursor:pointer;
-  font-family:'Outfit',sans-serif;font-size:0.81rem;font-weight:500;
-  color:var(--text);transition:all 0.2s;
+  background:rgba(180,150,100,0.1);
+  border:1px solid rgba(180,150,100,0.25);
+  border-radius:7px;padding:7px 10px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:500;
+  color:#6b5a3e;transition:all 0.2s;
 }
-.mode-btn:hover {border-color:var(--accent)}
-.mode-left {display:flex;align-items:center;gap:7px}
-.mode-dot {width:7px;height:7px;border-radius:50%;background:var(--accent);transition:background 0.3s;flex-shrink:0}
-.mode-chevron {color:var(--text3);font-size:0.6rem;transition:transform 0.2s}
-.mode-chevron.open {transform:rotate(180deg)}
-.mode-dropdown {
-  position:absolute;top:calc(100% + 5px);left:0;right:0;
-  background:var(--surface);border:1px solid var(--border2);
-  border-radius:9px;overflow:hidden;z-index:50;
-  opacity:0;pointer-events:none;transform:translateY(-4px);
-  transition:opacity 0.15s,transform 0.15s;
-  box-shadow:0 4px 16px rgba(0,0,0,0.08);
-}
-.mode-dropdown.open {opacity:1;pointer-events:all;transform:translateY(0)}
-.mode-option {
-  display:flex;align-items:center;gap:9px;
-  padding:10px 13px;cursor:pointer;font-size:0.81rem;
-  color:var(--text2);transition:background 0.15s;
-}
-.mode-option:hover {background:var(--surface2);color:var(--text)}
-.mode-option-dot {width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.mode-toggle-btn:hover {background:rgba(180,150,100,0.18);border-color:rgba(140,105,40,0.4)}
+.mode-toggle-left {display:flex;align-items:center;gap:6px}
+.mode-toggle-dot {width:5px;height:5px;border-radius:50%;background:#8b6914;flex-shrink:0}
+.mode-toggle-arrow {color:#b8a080;font-size:0.6rem}
 
-.s-action {padding:10px 16px}
-.upload-btn {
-  width:100%;background:var(--surface2);
-  border:1.5px dashed var(--border2);border-radius:8px;
-  padding:8px 12px;color:var(--text2);
-  font-family:'Outfit',sans-serif;font-size:0.8rem;
-  cursor:pointer;display:flex;align-items:center;gap:7px;
-  transition:all 0.2s;
+.p-upload-area {padding:10px 16px}
+.p-upload {
+  width:100%;background:transparent;
+  border:1px dashed rgba(180,150,100,0.3);
+  border-radius:7px;padding:7px 10px;color:#9e8866;
+  font-family:'Inter',sans-serif;font-size:0.75rem;
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;
 }
-.upload-btn:hover {border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
-.upload-btn svg {width:13px;height:13px;flex-shrink:0;stroke:currentColor;fill:none}
+.p-upload:hover {border-color:rgba(140,105,40,0.5);color:#8b6914;background:rgba(180,150,100,0.08)}
+.p-upload svg {width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}
 
-.jobs-banner {
-  background:var(--accent-light);
-  border:1px solid var(--accent-border);
-  border-radius:8px;padding:9px 12px;
-  font-size:0.77rem;color:var(--text2);line-height:1.5;
-  display:none;
-}
-.jobs-banner strong {color:var(--accent-text)}
+.p-docs-label {padding:8px 16px 4px;font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#c4b090}
+.p-doc-list {flex:1;overflow-y:auto;padding:0 8px 12px}
+.p-doc-list::-webkit-scrollbar {width:2px}
+.p-doc-list::-webkit-scrollbar-thumb {background:rgba(180,150,100,0.3);border-radius:1px}
 
-.s-label {
-  padding:10px 16px 6px;
-  font-size:0.63rem;font-weight:600;
-  text-transform:uppercase;letter-spacing:1.5px;
-  color:var(--text3);
+.p-doc-item {
+  display:flex;align-items:center;gap:7px;
+  padding:6px 9px;border-radius:6px;cursor:pointer;
+  transition:background 0.15s;margin-bottom:1px;
 }
-.doc-list {flex:1;overflow-y:auto;padding:0 8px 12px}
-.doc-list::-webkit-scrollbar {width:3px}
-.doc-list::-webkit-scrollbar-thumb {background:var(--border2);border-radius:2px}
-.doc-item {
-  display:flex;align-items:center;gap:8px;
-  padding:7px 9px;border-radius:7px;
-  cursor:pointer;transition:background 0.15s;margin-bottom:1px;
+.p-doc-item:hover {background:rgba(180,150,100,0.15)}
+.p-sticky {
+  width:18px;height:18px;flex-shrink:0;
+  border-radius:2px;display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;
 }
-.doc-item:hover {background:var(--surface2)}
-.doc-icon {
-  width:24px;height:24px;background:var(--surface2);
-  border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.doc-icon svg {width:12px;height:12px;stroke:var(--text3);fill:none;stroke-width:1.5}
-.doc-info {flex:1;min-width:0}
-.doc-title {font-size:0.78rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.doc-date {font-size:0.68rem;color:var(--text3);margin-top:1px}
-.doc-del {
-  background:none;border:none;color:var(--text3);
-  cursor:pointer;padding:2px;border-radius:4px;
-  display:flex;opacity:0;transition:opacity 0.15s,color 0.15s;flex-shrink:0;
-}
-.doc-item:hover .doc-del {opacity:1}
-.doc-del:hover {color:#e53e3e}
-.doc-del svg {width:12px;height:12px;stroke:currentColor;fill:none}
-.empty-docs {text-align:center;padding:20px 12px;color:var(--text3);font-size:0.78rem;line-height:1.6}
+.p-doc-name {font-size:0.74rem;color:#6b5a3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;font-family:'Lora',serif}
+.p-doc-del {background:none;border:none;color:#c4b090;cursor:pointer;display:flex;opacity:0;flex-shrink:0;transition:opacity 0.15s}
+.p-doc-item:hover .p-doc-del {opacity:1}
+.p-doc-del:hover {color:#c0392b}
+.p-doc-del svg {width:10px;height:10px;stroke:currentColor;fill:none}
+.p-empty {text-align:center;padding:18px 10px;color:#c4b090;font-size:0.72rem;line-height:1.6;font-family:'Lora',serif;font-style:italic}
 
-.s-foot {padding:12px 16px;border-top:1px solid var(--border)}
-.badges {display:flex;flex-wrap:wrap;gap:4px}
-.badge {
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:999px;padding:2px 7px;
-  font-size:0.62rem;font-family:'JetBrains Mono',monospace;
-  color:var(--text3);
-}
-
-/* ── MAIN ── */
-.main {flex:1;display:flex;flex-direction:column;background:var(--bg);transition:background 0.3s}
-.topbar {
-  padding:13px 22px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);transition:background 0.3s,border-color 0.3s;
-}
-.chat-label {font-size:0.8rem;color:var(--text3);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
-.topbar-right {display:flex;gap:8px;align-items:center}
-.mode-badge {
-  background:var(--accent-light);border:1px solid var(--accent-border);
-  border-radius:999px;padding:3px 10px;
-  font-size:0.7rem;color:var(--accent-text);font-weight:600;
-  transition:all 0.3s;
-}
-.newchat-btn {
-  background:none;border:1px solid var(--border2);
-  border-radius:7px;padding:4px 9px;color:var(--text2);
-  font-family:'Outfit',sans-serif;font-size:0.75rem;
-  cursor:pointer;display:flex;align-items:center;gap:4px;
-  transition:all 0.15s;
-}
-.newchat-btn:hover {border-color:var(--accent);color:var(--accent)}
-.newchat-btn svg {width:12px;height:12px;stroke:currentColor;fill:none}
-
-.chat-wrap {flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column}
-.chat-wrap::-webkit-scrollbar {width:3px}
-.chat-wrap::-webkit-scrollbar-thumb {background:var(--border);border-radius:2px}
-
-/* welcome */
-.welcome {
+/* main study area */
+.study-area {
   flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  text-align:center;padding:40px 20px;
-  animation:fadeUp 0.4s ease both;
+  position:relative;z-index:2;
+  height:100vh;
 }
-@keyframes fadeUp {from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.welcome-icon {
-  width:48px;height:48px;background:var(--text);border-radius:13px;
-  display:flex;align-items:center;justify-content:center;
-  margin-bottom:18px;flex-shrink:0;transition:background 0.3s;
-}
-.welcome-icon svg {width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.welcome h2 {font-size:1.45rem;font-weight:700;letter-spacing:-0.4px;margin-bottom:7px;color:var(--text)}
-.welcome p {font-size:0.86rem;color:var(--text3);max-width:360px;line-height:1.65;margin-bottom:28px}
-.suggestions {display:flex;flex-direction:column;gap:6px;width:100%;max-width:440px}
-.suggestion {
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:9px;padding:10px 14px;text-align:left;
-  cursor:pointer;font-family:'Outfit',sans-serif;
-  font-size:0.82rem;color:var(--text2);
-  display:flex;align-items:center;gap:10px;
-  transition:all 0.15s;
-}
-.suggestion:hover {border-color:var(--accent);color:var(--text);background:var(--accent-light)}
-.s-num {
-  width:20px;height:20px;background:var(--surface2);border-radius:5px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.67rem;font-weight:600;color:var(--text3);
-  flex-shrink:0;transition:all 0.15s;
-}
-.suggestion:hover .s-num {background:var(--accent);color:#fff}
-.s-arrow {margin-left:auto;color:var(--text4);font-size:0.72rem;transition:color 0.15s}
-.suggestion:hover .s-arrow {color:var(--accent)}
 
-/* messages */
-.msg-group {display:flex;flex-direction:column;margin-bottom:22px;animation:fadeUp 0.3s ease both}
-.msg-row {display:flex;gap:10px;align-items:flex-start}
-.msg-row.user {flex-direction:row-reverse}
-.avatar {
-  width:28px;height:28px;border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:600;flex-shrink:0;margin-top:2px;
+.study-topbar {
+  padding:14px 28px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(180,150,100,0.15);
+  background:rgba(245,240,232,0.9);
+  backdrop-filter:blur(8px);
 }
-.avatar.ai {background:var(--text);color:#fff;transition:background 0.3s}
-.avatar.user {background:var(--surface2);color:var(--text2);font-size:10px}
-.bubble {
-  max-width:72%;padding:11px 15px;border-radius:13px;
-  font-size:0.88rem;line-height:1.65;
+.study-title {
+  font-family:'Lora',serif;font-size:0.82rem;
+  color:#9e8866;font-style:italic;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;max-width:500px;
 }
-.msg-row.user .bubble {
-  background:var(--user-bubble);color:#fff;
-  border-bottom-right-radius:4px;transition:background 0.3s;
+.study-newchat {
+  background:none;border:1px solid rgba(180,150,100,0.3);
+  border-radius:6px;padding:4px 9px;color:#9e8866;
+  font-family:'Inter',sans-serif;font-size:0.7rem;
+  cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;
+  flex-shrink:0;
 }
-.msg-row.ai .bubble {
-  background:var(--surface);border:1px solid var(--border);
-  color:var(--text);border-bottom-left-radius:4px;white-space:pre-wrap;
-}
-.msg-time {font-size:0.67rem;color:var(--text3);margin-top:4px;padding:0 3px}
-.sources-row {display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-left:38px}
-.source-chip {
-  display:flex;align-items:center;gap:5px;
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:5px;padding:3px 9px;font-size:0.7rem;color:var(--text2);
-}
-.score-bar {width:28px;height:2px;background:var(--border2);border-radius:1px;overflow:hidden}
-.score-fill {height:100%;border-radius:1px;background:#22c55e}
-.score-fill.medium {background:#f59e0b}
-.score-fill.low {background:var(--text3)}
-.source-score {font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text3)}
+.study-newchat:hover {border-color:rgba(140,105,40,0.5);color:#6b5a3e}
+.study-newchat svg {width:10px;height:10px;stroke:currentColor;fill:none}
 
-/* typing */
-.typing {display:flex;align-items:center;gap:10px;margin-bottom:22px}
-.typing-dots {
-  display:flex;gap:3px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:13px;border-bottom-left-radius:4px;padding:11px 14px;
+.study-chat {
+  flex:1;overflow-y:auto;
+  padding:28px 32px 20px 42px;
 }
-.typing-dot {
-  width:5px;height:5px;background:var(--text3);border-radius:50%;
+.study-chat::-webkit-scrollbar {width:3px}
+.study-chat::-webkit-scrollbar-thumb {background:rgba(180,150,100,0.2);border-radius:1px}
+
+/* personal welcome */
+.p-welcome {
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:20px 0 28px;
+  animation:fadeSlideUp 0.5s ease both;
+}
+@keyframes fadeSlideUp {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.p-welcome-date {
+  font-family:'IBM Plex Mono',monospace;font-size:0.65rem;
+  color:#c4b090;margin-bottom:16px;letter-spacing:0.5px;
+}
+.p-welcome-heading {
+  font-family:'Lora',serif;font-size:1.6rem;font-weight:400;
+  color:#2c2420;letter-spacing:-0.3px;line-height:1.3;
+  margin-bottom:8px;
+}
+.p-welcome-heading em {color:#8b6914;font-style:italic}
+.p-welcome-sub {
+  font-size:0.82rem;color:#9e8866;line-height:1.6;
+  max-width:480px;margin-bottom:28px;
+}
+.p-suggestions {display:flex;flex-direction:column;gap:4px;width:100%;max-width:500px}
+.p-suggestion {
+  background:transparent;border:none;border-left:2px solid rgba(180,150,100,0.2);
+  padding:7px 12px;text-align:left;cursor:pointer;
+  font-family:'Lora',serif;font-size:0.83rem;
+  color:#9e8866;font-style:italic;
+  display:flex;align-items:center;gap:8px;
+  transition:all 0.15s;border-radius:0 6px 6px 0;
+}
+.p-suggestion:hover {
+  border-left-color:#8b6914;color:#4a3520;
+  background:rgba(180,150,100,0.08);
+}
+.p-suggestion::before {content:'"'}
+.p-suggestion::after {content:'"'}
+
+/* personal messages */
+.p-msg-group {margin-bottom:22px;animation:fadeSlideUp 0.3s ease both}
+.p-msg-user {
+  display:flex;justify-content:flex-end;margin-bottom:6px;
+}
+.p-msg-user-bubble {
+  background:#2c2420;color:#e8dcc8;
+  padding:9px 14px;border-radius:10px;border-bottom-right-radius:3px;
+  font-size:0.84rem;line-height:1.6;max-width:68%;
+}
+.p-msg-ai {
+  display:flex;align-items:flex-start;gap:10px;
+  margin-bottom:6px;
+}
+.p-ai-avatar {
+  width:22px;height:22px;background:#8b6914;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;font-size:9px;color:#fff;font-weight:600;
+}
+.p-ai-bubble {
+  font-family:'Lora',serif;font-size:0.88rem;
+  color:#2c2420;line-height:1.75;
+  max-width:72%;white-space:pre-wrap;
+}
+.p-msg-time {font-size:0.62rem;color:#c4b090;padding-left:32px;font-family:'IBM Plex Mono',monospace}
+.p-sources {display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;padding-left:32px}
+.p-source-chip {
+  font-size:0.65rem;color:#9e8866;
+  background:rgba(180,150,100,0.1);
+  border:1px solid rgba(180,150,100,0.2);
+  border-radius:3px;padding:2px 7px;
+  font-family:'IBM Plex Mono',monospace;
+}
+
+/* personal typing */
+.p-typing {display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.p-typing-dots {display:flex;gap:4px;padding-left:32px}
+.p-typing-dot {
+  width:5px;height:5px;border-radius:50%;
+  background:#c4b090;
   animation:typingDot 1.2s infinite;
 }
-.typing-dot:nth-child(2){animation-delay:0.2s}
-.typing-dot:nth-child(3){animation-delay:0.4s}
-@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-4px);opacity:1}}
-.cursor {
-  display:inline-block;width:2px;height:0.88em;
-  background:var(--accent);margin-left:1px;vertical-align:text-bottom;
-  animation:cursorBlink 0.7s infinite;transition:background 0.3s;
+.p-typing-dot:nth-child(2){animation-delay:0.2s}
+.p-typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes typingDot{0%,60%,100%{opacity:0.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+.p-cursor {
+  display:inline-block;width:1.5px;height:0.85em;
+  background:#8b6914;margin-left:1px;vertical-align:text-bottom;
+  animation:cursorBlink 0.7s infinite;
 }
 @keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* input */
-.input-area {
-  padding:12px 22px 16px;
-  border-top:1px solid var(--border);
-  background:var(--surface);transition:background 0.3s,border-color 0.3s;
+/* personal input */
+.study-input-wrap {
+  padding:12px 28px 16px 42px;
+  border-top:1px solid rgba(180,150,100,0.15);
+  background:rgba(245,240,232,0.95);
 }
-.input-box {
-  display:flex;align-items:flex-end;gap:9px;
-  background:var(--bg);border:1.5px solid var(--border2);
-  border-radius:12px;padding:9px 9px 9px 15px;
-  transition:border-color 0.2s;
+.study-input-box {
+  display:flex;align-items:flex-end;gap:8px;
+  background:rgba(255,252,245,0.8);
+  border:1px solid rgba(180,150,100,0.25);
+  border-radius:10px;padding:9px 9px 9px 14px;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  box-shadow:0 1px 4px rgba(140,105,40,0.06);
 }
-.input-box:focus-within {border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
-.input-box textarea {
+.study-input-box:focus-within {
+  border-color:rgba(140,105,40,0.45);
+  box-shadow:0 0 0 3px rgba(140,105,40,0.08);
+}
+.study-input-box textarea {
   flex:1;background:none;border:none;outline:none;
-  color:var(--text);font-family:'Outfit',sans-serif;
-  font-size:0.87rem;line-height:1.5;resize:none;
+  color:#2c2420;font-family:'Lora',serif;
+  font-size:0.88rem;line-height:1.5;resize:none;
   min-height:22px;max-height:120px;padding:1px 0;
 }
-.input-box textarea::placeholder {color:var(--text4)}
-.send-btn {
-  width:32px;height:32px;background:var(--text);
-  border:none;border-radius:8px;cursor:pointer;
+.study-input-box textarea::placeholder {color:#c4b090;font-style:italic}
+.study-send {
+  width:30px;height:30px;background:#2c2420;
+  border:none;border-radius:7px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all 0.2s;
+}
+.study-send:hover {background:#8b6914;transform:scale(1.05)}
+.study-send:disabled {background:#c4b090;cursor:not-allowed;transform:none}
+.study-send svg {width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.study-hint {
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  color:#c4b090;margin-top:6px;text-align:center;
+}
+
+/* ════════════════════════════════
+   JOBS MODE — THE WAR ROOM
+   ════════════════════════════════ */
+#jobs-view {
+  display:none;
+  width:100%;height:100vh;
+  background:#080b0e;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(16,185,129,0.04) 0%, transparent 60%);
+  position:relative;overflow:hidden;
+}
+
+/* scanline effect */
+#jobs-view::before {
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+}
+
+.war-room {
+  display:flex;height:100vh;position:relative;z-index:1;
+}
+
+/* left panel — job feed */
+.job-feed {
+  width:380px;min-width:380px;
+  background:rgba(10,14,12,0.95);
+  border-right:1px solid rgba(16,185,129,0.1);
+  display:flex;flex-direction:column;height:100vh;
+}
+
+.feed-header {
+  padding:16px 16px 12px;
+  border-bottom:1px solid rgba(16,185,129,0.1);
+}
+.j-logo {display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.j-logo-left {display:flex;align-items:center;gap:8px}
+.j-logo-mark {
+  width:26px;height:26px;
+  border:1px solid rgba(16,185,129,0.4);
+  border-radius:5px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.j-logo-mark svg {width:12px;height:12px;stroke:#10b981;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.j-logo-name {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.78rem;font-weight:500;
+  color:#e2e8e4;letter-spacing:0.5px;
+}
+.j-logo-name span {color:#10b981}
+
+.j-mode-btn {
+  display:flex;align-items:center;gap:5px;
+  background:rgba(16,185,129,0.06);
+  border:1px solid rgba(16,185,129,0.15);
+  border-radius:5px;padding:4px 9px;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem;color:#6b9e88;
+  transition:all 0.2s;
+}
+.j-mode-btn:hover {border-color:rgba(16,185,129,0.35);color:#10b981}
+
+.feed-meta {
+  display:flex;align-items:center;justify-content:space-between;
+}
+.feed-meta-label {
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.6rem;color:#3d6b56;letter-spacing:1.5px;text-transform:uppercase;
+}
+.feed-live {
+  display:flex;align-items:center;gap:5px;
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#10b981;
+}
+.live-dot {
+  width:5px;height:5px;border-radius:50%;background:#10b981;
+  animation:livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{opacity:0.7;box-shadow:0 0 0 4px rgba(16,185,129,0)}}
+
+.feed-scroll {flex:1;overflow-y:auto;padding:8px}
+.feed-scroll::-webkit-scrollbar {width:2px}
+.feed-scroll::-webkit-scrollbar-thumb {background:rgba(16,185,129,0.15);border-radius:1px}
+
+.job-card {
+  background:rgba(16,185,129,0.03);
+  border:1px solid rgba(16,185,129,0.08);
+  border-radius:8px;padding:10px 12px;
+  margin-bottom:5px;cursor:pointer;
+  transition:all 0.15s;position:relative;overflow:hidden;
+}
+.job-card::before {
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,#10b981,rgba(16,185,129,0.3));
+  opacity:0;transition:opacity 0.15s;
+}
+.job-card:hover {border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06)}
+.job-card:hover::before {opacity:1}
+.job-card.active {border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.08)}
+.job-card.active::before {opacity:1}
+
+.jc-agency {
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  color:#3d6b56;letter-spacing:0.8px;text-transform:uppercase;
+  margin-bottom:3px;
+}
+.jc-title {
+  font-size:0.8rem;font-weight:500;color:#c8d8d0;
+  line-height:1.3;margin-bottom:5px;
+}
+.jc-meta {display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.jc-tag {
+  font-family:'IBM Plex Mono',monospace;font-size:0.58rem;
+  color:#3d6b56;border:1px solid rgba(16,185,129,0.1);
+  border-radius:3px;padding:1px 5px;
+}
+.jc-salary {
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  color:#10b981;margin-left:auto;
+}
+.feed-empty {
+  text-align:center;padding:32px 16px;
+  font-family:'IBM Plex Mono',monospace;font-size:0.72rem;
+  color:#3d6b56;line-height:1.6;
+}
+
+/* right panel — war room chat */
+.war-chat-panel {
+  flex:1;display:flex;flex-direction:column;height:100vh;
+}
+.war-topbar {
+  padding:12px 20px;
+  border-bottom:1px solid rgba(16,185,129,0.08);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,11,14,0.9);backdrop-filter:blur(8px);
+}
+.war-title {
+  font-family:'IBM Plex Mono',monospace;font-size:0.72rem;
+  color:#3d6b56;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  flex:1;min-width:0;max-width:400px;
+}
+.war-topbar-right {display:flex;gap:7px;align-items:center}
+.war-badge {
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  color:#10b981;border:1px solid rgba(16,185,129,0.2);
+  border-radius:3px;padding:2px 7px;letter-spacing:0.5px;
+  background:rgba(16,185,129,0.04);
+}
+.war-newchat {
+  background:none;border:1px solid rgba(16,185,129,0.15);
+  border-radius:5px;padding:4px 8px;color:#3d6b56;
+  font-family:'IBM Plex Mono',monospace;font-size:0.62rem;
+  cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;
+}
+.war-newchat:hover {border-color:rgba(16,185,129,0.35);color:#10b981}
+.war-newchat svg {width:10px;height:10px;stroke:currentColor;fill:none}
+
+.war-chat {
+  flex:1;overflow-y:auto;padding:20px;
+}
+.war-chat::-webkit-scrollbar {width:2px}
+.war-chat::-webkit-scrollbar-thumb {background:rgba(16,185,129,0.15);border-radius:1px}
+
+/* war room welcome */
+.w-welcome {
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:16px 0;animation:fadeSlideUp 0.5s ease both;
+}
+.w-system-line {
+  font-family:'IBM Plex Mono',monospace;font-size:0.65rem;
+  color:#3d6b56;margin-bottom:6px;
+}
+.w-system-line::before {content:'> ';color:#10b981}
+.w-welcome-title {
+  font-family:'IBM Plex Mono',monospace;font-size:1.1rem;
+  color:#c8d8d0;margin-bottom:6px;letter-spacing:-0.5px;
+}
+.w-welcome-title span {color:#10b981}
+.w-welcome-sub {
+  font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+  color:#3d6b56;line-height:1.6;max-width:420px;margin-bottom:24px;
+}
+.w-suggestions {display:flex;flex-direction:column;gap:3px;max-width:460px}
+.w-suggestion {
+  background:none;border:none;
+  font-family:'IBM Plex Mono',monospace;font-size:0.72rem;
+  color:#3d6b56;cursor:pointer;text-align:left;
+  padding:5px 0 5px 12px;border-left:1px solid rgba(16,185,129,0.15);
+  transition:all 0.15s;
+}
+.w-suggestion::before {content:'$ ';color:rgba(16,185,129,0.4)}
+.w-suggestion:hover {color:#10b981;border-left-color:#10b981;background:rgba(16,185,129,0.03);padding-left:16px}
+
+/* war room messages */
+.w-msg-group {margin-bottom:18px;animation:fadeSlideUp 0.3s ease both}
+.w-msg-user {
+  display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;
+}
+.w-user-prompt {font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#6b9e88}
+.w-user-prompt::before {content:'> ';color:#10b981}
+.w-msg-ai {display:flex;flex-direction:column;gap:2px;padding-left:0}
+.w-ai-label {font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#3d6b56;margin-bottom:4px}
+.w-ai-label::before {content:'QUERYMIND:// ';color:rgba(16,185,129,0.4)}
+.w-ai-text {
+  font-size:0.83rem;color:#c8d8d0;line-height:1.7;
+  white-space:pre-wrap;padding-left:2px;
+  border-left:1px solid rgba(16,185,129,0.1);
+  padding-left:10px;
+}
+.w-msg-time {font-family:'IBM Plex Mono',monospace;font-size:0.58rem;color:#1e3a2e;margin-top:4px}
+.w-sources {display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding-left:10px}
+.w-source-chip {
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  color:#3d6b56;background:rgba(16,185,129,0.04);
+  border:1px solid rgba(16,185,129,0.1);border-radius:3px;padding:1px 6px;
+}
+
+/* war room typing */
+.w-typing {padding:8px 0;margin-bottom:12px}
+.w-typing-label {font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#3d6b56}
+.w-typing-label::before {content:'QUERYMIND:// ';color:rgba(16,185,129,0.3)}
+.w-blink::after {
+  content:'_';color:#10b981;
+  animation:cursorBlink 0.7s infinite;
+}
+
+.w-cursor {
+  display:inline-block;width:7px;height:0.85em;
+  background:#10b981;margin-left:1px;vertical-align:text-bottom;
+  animation:cursorBlink 0.7s infinite;opacity:0.8;
+}
+
+/* war room input */
+.war-input-wrap {
+  padding:10px 20px 14px;
+  border-top:1px solid rgba(16,185,129,0.08);
+  background:rgba(8,11,14,0.95);
+}
+.war-input-box {
+  display:flex;align-items:flex-end;gap:8px;
+  background:rgba(16,185,129,0.03);
+  border:1px solid rgba(16,185,129,0.12);
+  border-radius:8px;padding:8px 8px 8px 12px;
+  transition:all 0.2s;
+}
+.war-input-box:focus-within {
+  border-color:rgba(16,185,129,0.3);
+  box-shadow:0 0 0 2px rgba(16,185,129,0.06);
+}
+.war-input-prefix {
+  font-family:'IBM Plex Mono',monospace;font-size:0.78rem;
+  color:#10b981;padding-bottom:2px;flex-shrink:0;
+}
+.war-input-box textarea {
+  flex:1;background:none;border:none;outline:none;
+  color:#c8d8d0;font-family:'IBM Plex Mono',monospace;
+  font-size:0.78rem;line-height:1.5;resize:none;
+  min-height:20px;max-height:120px;padding:1px 0;
+}
+.war-input-box textarea::placeholder {color:#1e3a2e}
+.war-send {
+  width:28px;height:28px;
+  background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.2);
+  border-radius:6px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;transition:all 0.2s;
 }
-.send-btn:hover {background:var(--accent);transform:scale(1.05)}
-.send-btn:disabled {background:var(--surface2);cursor:not-allowed;transform:none}
-.send-btn svg {width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.input-hint {text-align:center;font-size:0.65rem;color:var(--text4);margin-top:7px}
+.war-send:hover {background:rgba(16,185,129,0.2);border-color:rgba(16,185,129,0.4)}
+.war-send:disabled {opacity:0.3;cursor:not-allowed}
+.war-send svg {width:12px;height:12px;fill:none;stroke:#10b981;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.war-hint {
+  font-family:'IBM Plex Mono',monospace;font-size:0.58rem;
+  color:#1e3a2e;margin-top:5px;text-align:center;letter-spacing:0.3px;
+}
 
-/* confirm modal */
+/* ── SHARED MODALS ── */
 .overlay {
-  position:fixed;inset:0;background:rgba(0,0,0,0.3);
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);
   display:flex;align-items:center;justify-content:center;
-  z-index:200;backdrop-filter:blur(3px);
+  z-index:200;backdrop-filter:blur(6px);
   opacity:0;pointer-events:none;transition:opacity 0.2s;
 }
 .overlay.open {opacity:1;pointer-events:all}
 .modal {
-  background:var(--surface);border:1px solid var(--border2);
-  border-radius:14px;padding:24px;width:360px;max-width:90vw;
-  transform:translateY(10px);transition:transform 0.2s,background 0.3s;
-  box-shadow:0 8px 32px rgba(0,0,0,0.1);
+  background:#111;border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:20px;width:320px;max-width:90vw;
+  transform:translateY(10px);transition:transform 0.2s;
+  box-shadow:0 16px 48px rgba(0,0,0,0.6);
 }
 .overlay.open .modal {transform:translateY(0)}
-.modal h3 {font-size:0.95rem;font-weight:600;margin-bottom:6px;color:var(--text)}
-.modal p {font-size:0.82rem;color:var(--text2);line-height:1.55;margin-bottom:18px}
-.modal-actions {display:flex;gap:8px;justify-content:flex-end}
-.btn {
-  padding:7px 16px;border-radius:7px;
-  font-family:'Outfit',sans-serif;font-size:0.82rem;
-  font-weight:500;cursor:pointer;transition:all 0.15s;border:none;
-}
-.btn-ghost {background:none;border:1px solid var(--border2);color:var(--text2)}
-.btn-ghost:hover {border-color:var(--border);color:var(--text)}
-.btn-primary {background:var(--text);color:#fff;transition:background 0.3s}
-.btn-primary:hover {background:var(--accent)}
+.modal h3 {font-size:0.86rem;font-weight:600;margin-bottom:5px;color:#e2e8f0}
+.modal p {font-size:0.78rem;color:#718096;line-height:1.55;margin-bottom:14px}
+.modal-actions {display:flex;gap:7px;justify-content:flex-end}
+.btn {padding:6px 13px;border-radius:6px;font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.15s;border:none}
+.btn-ghost {background:none;border:1px solid rgba(255,255,255,0.1);color:#718096}
+.btn-ghost:hover {color:#e2e8f0;border-color:rgba(255,255,255,0.2)}
+.btn-primary {background:#10b981;color:#fff}
+.btn-primary:hover {background:#059669}
 
-/* upload modal */
 .u-overlay {
-  position:fixed;inset:0;background:rgba(0,0,0,0.3);
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);
   display:flex;align-items:center;justify-content:center;
-  z-index:100;backdrop-filter:blur(3px);
+  z-index:100;backdrop-filter:blur(6px);
   opacity:0;pointer-events:none;transition:opacity 0.2s;
 }
 .u-overlay.open {opacity:1;pointer-events:all}
 .u-modal {
-  background:var(--surface);border:1px solid var(--border2);
-  border-radius:14px;padding:24px;width:420px;max-width:90vw;
+  background:#111;border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:20px;width:380px;max-width:90vw;
   transform:translateY(10px);transition:transform 0.2s;
-  box-shadow:0 8px 32px rgba(0,0,0,0.1);
+  box-shadow:0 16px 48px rgba(0,0,0,0.6);
 }
 .u-overlay.open .u-modal {transform:translateY(0)}
-.u-modal h3 {font-size:0.95rem;font-weight:600;margin-bottom:5px;color:var(--text)}
-.u-modal p {font-size:0.81rem;color:var(--text2);line-height:1.5;margin-bottom:16px}
+.u-modal h3 {font-size:0.86rem;font-weight:600;margin-bottom:4px;color:#e2e8f0}
+.u-modal p {font-size:0.77rem;color:#718096;line-height:1.5;margin-bottom:12px}
 .drop-zone {
-  border:1.5px dashed var(--border2);border-radius:10px;
-  padding:28px;text-align:center;cursor:pointer;
-  transition:all 0.2s;margin-bottom:12px;
+  border:1px dashed rgba(255,255,255,0.1);border-radius:8px;
+  padding:22px;text-align:center;cursor:pointer;
+  transition:all 0.2s;margin-bottom:9px;background:rgba(255,255,255,0.02);
 }
-.drop-zone:hover,.drop-zone.dragover {border-color:var(--accent);background:var(--accent-light)}
-.dz-icon {font-size:1.8rem;margin-bottom:8px}
-.dz-text {font-size:0.82rem;color:var(--text2)}
-.dz-text span {color:var(--accent);font-weight:500}
-.dz-hint {font-size:0.72rem;color:var(--text3);margin-top:4px}
+.drop-zone:hover,.drop-zone.dragover {border-color:#10b981;background:rgba(16,185,129,0.04)}
+.dz-icon {font-size:1.5rem;margin-bottom:6px}
+.dz-text {font-size:0.77rem;color:#718096}
+.dz-text span {color:#10b981;font-weight:500}
+.dz-hint {font-size:0.67rem;color:#4a5568;margin-top:3px}
 .u-input {
-  width:100%;background:var(--surface2);border:1px solid var(--border);
-  border-radius:7px;padding:8px 11px;color:var(--text);
-  font-family:'Outfit',sans-serif;font-size:0.82rem;outline:none;
-  margin-bottom:10px;transition:border-color 0.2s;
+  width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:7px 10px;color:#e2e8f0;
+  font-family:'Inter',sans-serif;font-size:0.79rem;outline:none;
+  margin-bottom:8px;transition:border-color 0.2s;
 }
-.u-input:focus {border-color:var(--accent)}
-.u-input::placeholder {color:var(--text3)}
-.prog-bar {width:100%;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-bottom:10px;display:none}
-.prog-fill {height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 0.3s ease}
-.status-msg {font-size:0.77rem;text-align:center;margin-bottom:10px;min-height:18px}
-.status-msg.ok {color:#16a34a}
-.status-msg.err {color:#dc2626}
-.u-actions {display:flex;gap:8px;justify-content:flex-end}
+.u-input:focus {border-color:#10b981}
+.u-input::placeholder {color:#4a5568}
+.prog-bar {width:100%;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;margin-bottom:8px;display:none}
+.prog-fill {height:100%;background:#10b981;border-radius:1px;width:0%;transition:width 0.3s ease}
+.status-msg {font-size:0.72rem;text-align:center;margin-bottom:8px;min-height:16px}
+.status-msg.ok {color:#10b981}
+.status-msg.err {color:#ef4444}
+.u-actions {display:flex;gap:7px;justify-content:flex-end}
 
-@media(max-width:640px){
-  .sidebar {
+/* hamburger */
+.p-hamburger,.w-hamburger {
+  display:none;flex-direction:column;justify-content:center;
+  gap:4px;background:none;border:none;cursor:pointer;
+  padding:3px;width:24px;height:24px;flex-shrink:0;
+}
+.p-hamburger span {display:block;height:1.5px;background:#9e8866;border-radius:1px}
+.w-hamburger span {display:block;height:1.5px;background:#3d6b56;border-radius:1px}
+.sidebar-overlay {display:none;position:fixed;inset:0;z-index:140}
+.sidebar-overlay.open {display:block}
+
+@media(max-width:700px){
+  .doc-strip,.job-feed {
     position:fixed;left:0;top:0;bottom:0;z-index:150;
     transform:translateX(-100%);transition:transform 0.3s ease;
-    box-shadow:4px 0 20px rgba(0,0,0,0.15);
   }
-  .sidebar.open {transform:translateX(0)}
-  .sidebar-overlay {
-    display:none;position:fixed;inset:0;
-    background:rgba(0,0,0,0.4);z-index:140;
-    backdrop-filter:blur(2px);
-  }
-  .sidebar-overlay.open {display:block}
-  .hamburger {
-    display:flex;flex-direction:column;justify-content:center;
-    gap:4px;background:none;border:none;cursor:pointer;
-    padding:4px;width:28px;height:28px;flex-shrink:0;
-  }
-  .hamburger span {
-    display:block;height:2px;background:var(--text);
-    border-radius:2px;transition:all 0.2s;
-  }
-  .bubble { max-width:85% !important; font-size:0.85rem !important; }
-  .source-chip { font-size:0.68rem !important; }
-  .source-chip span:first-of-type { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .newchat-btn span { display:none; }
-  .newchat-btn { padding:5px 8px !important; }
-  .topbar { padding:10px 14px !important; }
-  .chat-wrap { padding:16px 12px !important; }
-  .input-area { padding:10px 12px 14px !important; }
-  .sources-row { padding-left:0 !important; }
-  .msg-time { font-size:0.62rem !important; }
-  .welcome h2 { font-size:1.2rem !important; }
-  .welcome p { font-size:0.82rem !important; }
-  .suggestion { font-size:0.8rem !important; padding:9px 12px !important; }
-}
-@media(min-width:641px){
-  .hamburger{display:none}
-  .sidebar-overlay{display:none}
+  .doc-strip.open,.job-feed.open {transform:translateX(0)}
+  .p-hamburger,.w-hamburger {display:flex}
+  #personal-view::before,#personal-view::after {left:0}
+  .study-chat,.study-input-wrap {padding-left:20px}
+  .p-ai-bubble,.p-msg-user-bubble {max-width:90%!important}
+  .w-ai-text {font-size:0.79rem!important}
+  .war-input-box textarea {font-size:16px!important}
+  .study-input-box textarea {font-size:16px!important}
 }
 </style>
 </head>
 <body>
 
-<aside class="sidebar" id="sidebar">
-  <div class="s-head">
-    <div class="logo">
-      <div class="logo-mark">
-        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+<div class="page-morph" id="page-morph"></div>
+
+<!-- ══════════ PERSONAL VIEW ══════════ -->
+<div id="personal-view">
+  <aside class="doc-strip" id="doc-strip">
+    <div class="doc-strip-head">
+      <div class="p-logo">
+        <div class="p-logo-mark">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <span class="p-logo-name">Query<span>Mind</span></span>
       </div>
-      <span class="logo-name">Docu<span>Query</span></span>
-    </div>
-    <div class="mode-wrap" id="mode-wrap">
-      <button class="mode-btn" onclick="toggleDrop()">
-        <span class="mode-left">
-          <span class="mode-dot"></span>
-          <span id="mode-label">Personal Assistant</span>
+      <div class="mode-toggle-btn" onclick="switchToJobs()">
+        <span class="mode-toggle-left">
+          <span class="mode-toggle-dot" style="background:#10b981"></span>
+          Switch to War Room
         </span>
-        <span class="mode-chevron" id="mode-chevron">▾</span>
+        <span class="mode-toggle-arrow">→</span>
+      </div>
+    </div>
+    <div class="p-upload-area">
+      <button class="p-upload" onclick="openUpload()">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Attach a document
       </button>
-      <div class="mode-dropdown" id="mode-dropdown">
-        <div class="mode-option" id="mode-option" onclick="requestSwitch()">
-          <span class="mode-option-dot" id="opt-dot" style="background:#d97706"></span>
-          <span id="opt-label">DC Tech Jobs</span>
+    </div>
+    <div class="p-docs-label">Your Documents</div>
+    <div class="p-doc-list" id="p-doc-list">
+      <div class="p-empty" id="p-empty">Nothing here yet.<br/>Attach a file to begin.</div>
+    </div>
+  </aside>
+
+  <div class="study-area">
+    <div class="study-topbar">
+      <div style="display:flex;align-items:center;gap:9px;min-width:0;flex:1">
+        <button class="p-hamburger" id="p-hamburger" onclick="togglePSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="study-title" id="p-chat-label">Study session</span>
+      </div>
+      <button class="study-newchat" onclick="clearPersonalChat()">
+        <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.24"/></svg>
+        New session
+      </button>
+    </div>
+    <div class="study-chat" id="p-chat-wrap"></div>
+    <div class="study-input-wrap">
+      <div class="study-input-box">
+        <textarea id="p-question" placeholder="Ask anything about your notes..." rows="1"
+          onkeydown="handlePKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="study-send" id="p-send-btn" onclick="askPersonal()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="study-hint">querymind · personal study assistant · your documents stay private</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ JOBS VIEW ══════════ -->
+<div id="jobs-view">
+  <div class="war-room">
+    <aside class="job-feed" id="job-feed">
+      <div class="feed-header">
+        <div class="j-logo">
+          <div class="j-logo-left">
+            <div class="j-logo-mark">
+              <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <span class="j-logo-name">Query<span>Mind</span></span>
+          </div>
+          <button class="j-mode-btn" onclick="switchToPersonal()">← Study Room</button>
+        </div>
+        <div class="feed-meta">
+          <span class="feed-meta-label">DC Federal Tech Jobs</span>
+          <span class="feed-live"><span class="live-dot"></span>LIVE</span>
         </div>
       </div>
-    </div>
-  </div>
+      <div class="feed-scroll" id="j-feed-scroll">
+        <div class="feed-empty" id="j-feed-empty">
+          > Connecting to USAJobs feed...<br/>
+          > Awaiting job data..._
+        </div>
+      </div>
+    </aside>
 
-  <div class="s-action">
-    <button class="upload-btn" id="upload-btn" onclick="openUpload()">
-      <svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Upload document
-    </button>
-    <div class="jobs-banner" id="jobs-banner">
-      🔄 <strong>Updated daily</strong> via Airflow<br/>
-      <span style="color:var(--text3)">Federal tech jobs across DC agencies</span>
+    <div class="war-chat-panel">
+      <div class="war-topbar">
+        <div style="display:flex;align-items:center;gap:9px;min-width:0;flex:1">
+          <button class="w-hamburger" id="w-hamburger" onclick="toggleWFeed()">
+            <span></span><span></span><span></span>
+          </button>
+          <span class="war-title" id="w-chat-label">querymind://war-room/new-session</span>
+        </div>
+        <div class="war-topbar-right">
+          <span class="war-badge">WAR_ROOM</span>
+          <button class="war-newchat" onclick="clearJobsChat()">
+            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.24"/></svg>
+            reset
+          </button>
+        </div>
+      </div>
+      <div class="war-chat" id="w-chat-wrap"></div>
+      <div class="war-input-wrap">
+        <div class="war-input-box">
+          <span class="war-input-prefix">$</span>
+          <textarea id="w-question" placeholder="query the job feed..." rows="1"
+            onkeydown="handleWKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="war-send" id="w-send-btn" onclick="askJobs()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+        <div class="war-hint">querymind://rag_pipeline · pgvector · llama-3.1 · usajobs_feed</div>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="s-label" id="s-label">Knowledge Base</div>
-  <div class="doc-list" id="doc-list">
-    <div class="empty-docs" id="empty-docs">No documents yet.<br/>Upload a file to get started.</div>
-  </div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebars()"></div>
 
-  <div class="s-foot">
-    <div class="badges">
-      <span class="badge">pgvector</span>
-      <span class="badge">HuggingFace</span>
-      <span class="badge">Groq LLM</span>
-      <span class="badge">FastAPI</span>
-      <span class="badge">Docker</span>
-    </div>
-  </div>
-</aside>
-
-<main class="main">
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-      <span class="chat-label" id="chat-label">New conversation</span>
-    </div>
-    <div class="topbar-right">
-      <span class="mode-badge" id="mode-badge">Personal</span>
-      <button class="newchat-btn" onclick="clearChat()">
-        <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.24"/></svg>
-        New chat
-      </button>
-    </div>
-  </div>
-  <div class="chat-wrap" id="chat-wrap"></div>
-  <div class="input-area">
-    <div class="input-box">
-      <textarea id="question" placeholder="Ask a question about your documents..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="send-btn" onclick="askQuestion()">
-        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
-    </div>
-    <div class="input-hint">DocuQuery · RAG pipeline · answers grounded in your documents</div>
-  </div>
-</main>
-
-<!-- CONFIRM MODAL -->
+<!-- confirm switch modal -->
 <div class="overlay" id="confirm-overlay" onclick="cancelSwitch()">
   <div class="modal" onclick="event.stopPropagation()">
     <h3 id="confirm-title">Switch mode?</h3>
-    <p id="confirm-body">Your current chat will be saved and restored when you switch back.</p>
+    <p id="confirm-body">Your current chat will be saved.</p>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="cancelSwitch()">Cancel</button>
       <button class="btn btn-primary" onclick="doSwitch()">Switch</button>
@@ -512,15 +804,15 @@ body {font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);hei
   </div>
 </div>
 
-<!-- UPLOAD MODAL -->
+<!-- upload modal -->
 <div class="u-overlay" id="u-overlay" onclick="closeUploadIfBg(event)">
   <div class="u-modal">
-    <h3>Upload Document</h3>
-    <p>Add a PDF or text file to your knowledge base. DocuQuery will chunk, embed, and index it for you.</p>
+    <h3>Attach Document</h3>
+    <p>Add a PDF or text file to your study session.</p>
     <div class="drop-zone" id="drop-zone"
       onclick="document.getElementById('file-input').click()"
       ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="dropFile(event)">
-      <div class="dz-icon">📄</div>
+      <div class="dz-icon">📎</div>
       <p class="dz-text"><span>Click to browse</span> or drag & drop</p>
       <p class="dz-hint">PDF or TXT · up to 10MB</p>
     </div>
@@ -530,360 +822,398 @@ body {font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="status-msg" id="status-msg"></div>
     <div class="u-actions">
       <button class="btn btn-ghost" onclick="closeUpload()">Cancel</button>
-      <button class="btn btn-primary" id="submit-btn" onclick="submitUpload()" disabled>Upload & Index</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitUpload()" disabled>Attach & Index</button>
     </div>
   </div>
 </div>
 
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 <script>
 const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://docuquery-production-872a.up.railway.app';
 
 function getSession() {
-  let s = localStorage.getItem('dq_sid');
-  if (!s) { s = 'sess_' + Math.random().toString(36).slice(2,18) + Date.now().toString(36); localStorage.setItem('dq_sid', s); }
+  let s = localStorage.getItem('qm_sid');
+  if (!s) { s = 'sess_' + Math.random().toString(36).slice(2,18) + Date.now().toString(36); localStorage.setItem('qm_sid', s); }
   return s;
 }
 const SID = getSession();
 
-const modeState = {
-  personal: { history: [], chatHTML: '', title: 'New conversation' },
-  jobs:     { history: [], chatHTML: '', title: 'New conversation' }
+let mode = localStorage.getItem('qm_mode') || 'jobs';
+let selectedFile = null;
+let pendingSwitch = null;
+
+const state = {
+  personal: { history: [], chatHTML: '', title: 'Study session' },
+  jobs:     { history: [], chatHTML: '', title: 'querymind://war-room/new-session' }
 };
 
-let mode = localStorage.getItem('dq_mode') || 'personal';
-let history = [];
-let selectedFile = null;
-let pendingMode = null;
-let dropOpen = false;
-
-const personalSugg = [
-  'What is Washington DC known for?',
-  'What can I visit at the National Mall?',
-  'Tell me about Georgetown University',
-  'What are the main DC universities?'
-];
-const jobsSugg = [
-  'What data engineer jobs are available in DC?',
-  'What Python skills do federal agencies require?',
-  'Which agencies are hiring machine learning engineers?',
-  'What is the salary range for federal tech jobs?'
-];
-
-function toggleDrop() {
-  dropOpen = !dropOpen;
-  document.getElementById('mode-dropdown').classList.toggle('open', dropOpen);
-  document.getElementById('mode-chevron').classList.toggle('open', dropOpen);
-}
-
-document.addEventListener('click', e => {
-  if (!document.getElementById('mode-wrap').contains(e.target)) {
-    dropOpen = false;
-    document.getElementById('mode-dropdown').classList.remove('open');
-    document.getElementById('mode-chevron').classList.remove('open');
-  }
-});
-
-function requestSwitch() {
-  const to = mode === 'personal' ? 'jobs' : 'personal';
-  pendingMode = to;
-  dropOpen = false;
-  document.getElementById('mode-dropdown').classList.remove('open');
-  document.getElementById('mode-chevron').classList.remove('open');
-  const toLabel = to === 'jobs' ? 'DC Tech Jobs' : 'Personal Assistant';
-  const fromLabel = mode === 'jobs' ? 'DC Tech Jobs' : 'Personal Assistant';
-  document.getElementById('confirm-title').textContent = `Switch to ${toLabel}?`;
-  document.getElementById('confirm-body').textContent = `Your ${fromLabel} chat will be saved and restored when you switch back.`;
+// ── MODE SWITCH ──
+function switchToJobs() {
+  if (mode === 'jobs') return;
+  pendingSwitch = 'jobs';
+  document.getElementById('confirm-title').textContent = 'Enter the War Room?';
+  document.getElementById('confirm-body').textContent = 'Switching to live DC federal tech jobs feed. Your study session will be saved.';
   document.getElementById('confirm-overlay').classList.add('open');
 }
-
+function switchToPersonal() {
+  if (mode === 'personal') return;
+  pendingSwitch = 'personal';
+  document.getElementById('confirm-title').textContent = 'Return to Study Room?';
+  document.getElementById('confirm-body').textContent = 'Switching to personal document assistant. Your War Room session will be saved.';
+  document.getElementById('confirm-overlay').classList.add('open');
+}
 function cancelSwitch() {
-  pendingMode = null;
+  pendingSwitch = null;
   document.getElementById('confirm-overlay').classList.remove('open');
 }
-
 function doSwitch() {
   document.getElementById('confirm-overlay').classList.remove('open');
-  if (!pendingMode) return;
-  applySwitch(pendingMode);
-  pendingMode = null;
+  if (!pendingSwitch) return;
+  const to = pendingSwitch; pendingSwitch = null;
+  const morph = document.getElementById('page-morph');
+  morph.classList.add('active');
+  setTimeout(() => {
+    applyModeSwitch(to);
+    setTimeout(() => morph.classList.remove('active'), 300);
+  }, 300);
 }
 
-function applySwitch(to) {
-  modeState[mode].history = [...history];
-  modeState[mode].chatHTML = document.getElementById('chat-wrap').innerHTML;
-  modeState[mode].title = document.getElementById('chat-label').textContent;
-
-  mode = to;
-  localStorage.setItem('dq_mode', to);
-  const isJobs = to === 'jobs';
-
-  document.body.className = isJobs ? 'mode-jobs' : '';
-  document.getElementById('mode-label').textContent = isJobs ? 'DC Tech Jobs' : 'Personal Assistant';
-  document.getElementById('opt-label').textContent = isJobs ? 'Personal Assistant' : 'DC Tech Jobs';
-  document.getElementById('opt-dot').style.background = isJobs ? '#0066ff' : '#d97706';
-  document.getElementById('mode-badge').textContent = isJobs ? 'DC Jobs' : 'Personal';
-  document.getElementById('s-label').textContent = isJobs ? 'Live Job Data' : 'Knowledge Base';
-  document.getElementById('upload-btn').style.display = isJobs ? 'none' : 'flex';
-  document.getElementById('jobs-banner').style.display = isJobs ? 'block' : 'none';
-
-  history = [...modeState[to].history];
-  const wrap = document.getElementById('chat-wrap');
-  if (modeState[to].chatHTML) {
-    wrap.innerHTML = modeState[to].chatHTML;
-    document.getElementById('chat-label').textContent = modeState[to].title;
+function applyModeSwitch(to) {
+  if (to === 'personal') {
+    state.jobs.chatHTML = document.getElementById('w-chat-wrap').innerHTML;
+    state.jobs.title = document.getElementById('w-chat-label').textContent;
+    state.jobs.history = [...jobsHistory];
   } else {
-    renderWelcome();
+    state.personal.chatHTML = document.getElementById('p-chat-wrap').innerHTML;
+    state.personal.title = document.getElementById('p-chat-label').textContent;
+    state.personal.history = [...personalHistory];
   }
-  loadDocs();
+  mode = to;
+  localStorage.setItem('qm_mode', to);
+  if (to === 'personal') {
+    document.getElementById('jobs-view').style.display = 'none';
+    document.getElementById('personal-view').style.display = 'flex';
+    personalHistory = [...state.personal.history];
+    const wrap = document.getElementById('p-chat-wrap');
+    if (state.personal.chatHTML) { wrap.innerHTML = state.personal.chatHTML; document.getElementById('p-chat-label').textContent = state.personal.title; }
+    else renderPersonalWelcome();
+    loadPersonalDocs();
+  } else {
+    document.getElementById('personal-view').style.display = 'none';
+    document.getElementById('jobs-view').style.display = 'flex';
+    jobsHistory = [...state.jobs.history];
+    const wrap = document.getElementById('w-chat-wrap');
+    if (state.jobs.chatHTML) { wrap.innerHTML = state.jobs.chatHTML; document.getElementById('w-chat-label').textContent = state.jobs.title; }
+    else renderJobsWelcome();
+    loadJobsDocs();
+  }
 }
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askQuestion(); }
+// ── INIT ──
+function init() {
+  if (mode === 'personal') {
+    document.getElementById('jobs-view').style.display = 'none';
+    document.getElementById('personal-view').style.display = 'flex';
+    renderPersonalWelcome();
+    loadPersonalDocs();
+  } else {
+    document.getElementById('personal-view').style.display = 'none';
+    document.getElementById('jobs-view').style.display = 'flex';
+    renderJobsWelcome();
+    loadJobsDocs();
+  }
 }
 
-function renderWelcome() {
-  const sugg = mode === 'jobs' ? jobsSugg : personalSugg;
-  const icon = mode === 'jobs'
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
-  const title = mode === 'jobs' ? 'Explore DC Tech Jobs' : 'What do you want to know?';
-  const sub = mode === 'jobs'
-    ? 'Ask about federal tech job openings, required skills, salary ranges, and hiring agencies — updated daily from USAJobs.'
-    : 'Ask anything about your uploaded documents. DocuQuery retrieves the most relevant context and generates precise answers.';
-  const wrap = document.getElementById('chat-wrap');
+// ── PERSONAL MODE LOGIC ──
+let personalHistory = [];
+
+const personalSugg = [
+  "Which section of this document should I spend more time on?",
+  "Give me a quick summary I can review before my meeting",
+  "What are the most important concepts here?",
+  "Explain this to me like I have 5 minutes"
+];
+
+function renderPersonalWelcome() {
+  const wrap = document.getElementById('p-chat-wrap');
   wrap.innerHTML = '';
+  const now = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   const el = document.createElement('div');
-  el.className = 'welcome';
-  el.id = 'welcome';
+  el.className = 'p-welcome';
   el.innerHTML = `
-    <div class="welcome-icon">${icon}</div>
-    <h2>${title}</h2>
-    <p>${sub}</p>
-    <div class="suggestions">
-      ${sugg.map((s,i) => `<button class="suggestion" onclick="useSugg(this)"><span class="s-num">${i+1}</span>${s}<span class="s-arrow">→</span></button>`).join('')}
+    <div class="p-welcome-date">${now}</div>
+    <h2 class="p-welcome-heading">Hello. What would you like to<br/><em>understand today?</em></h2>
+    <p class="p-welcome-sub">Attach your notes, research, or any document — then ask freely. QueryMind finds the relevant parts and answers in plain language.</p>
+    <div class="p-suggestions">
+      ${personalSugg.map(s => `<button class="p-suggestion" onclick="usePSugg(this)">${s}</button>`).join('')}
     </div>`;
   wrap.appendChild(el);
-  document.getElementById('chat-label').textContent = 'New conversation';
+  document.getElementById('p-chat-label').textContent = 'Study session';
 }
 
-function clearChat() {
-  modeState[mode].history = [];
-  modeState[mode].chatHTML = '';
-  modeState[mode].title = 'New conversation';
-  history = [];
-  renderWelcome();
+function clearPersonalChat() {
+  state.personal = { history: [], chatHTML: '', title: 'Study session' };
+  personalHistory = [];
+  renderPersonalWelcome();
 }
 
-function useSugg(btn) {
-  const t = btn.textContent.replace('→','').replace(/^\d/,'').trim();
-  document.getElementById('question').value = t;
-  askQuestion();
+function usePSugg(btn) {
+  const t = btn.textContent.replace(/[""]/g,'').trim();
+  document.getElementById('p-question').value = t;
+  askPersonal();
 }
 
-async function loadDocs() {
+function handlePKey(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();askPersonal()} }
+
+async function loadPersonalDocs() {
   try {
-    const r = await fetch(`${API}/documents?mode=${mode}&session_id=${SID}`);
+    const r = await fetch(`${API}/documents?mode=personal&session_id=${SID}`);
     const d = await r.json();
-    renderDocs(d.documents);
+    renderPersonalDocs(d.documents);
   } catch(e) {}
 }
 
-function renderDocs(docs) {
-  const list = document.getElementById('doc-list');
-  const empty = document.getElementById('empty-docs');
-  list.querySelectorAll('.doc-item').forEach(e => e.remove());
-  if (!docs || !docs.length) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  docs.forEach(doc => {
-    const date = new Date(doc.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+function renderPersonalDocs(docs) {
+  const list = document.getElementById('p-doc-list');
+  const empty = document.getElementById('p-empty');
+  list.querySelectorAll('.p-doc-item').forEach(e => e.remove());
+  if (!docs||!docs.length){empty.style.display='block';return}
+  empty.style.display='none';
+  const colors=['#f0db7d','#a8d8a8','#f0a8a8','#a8c8f0','#f0c8a8'];
+  docs.forEach((doc,i) => {
     const title = doc.title.replace(/_/g,' ');
     const item = document.createElement('div');
-    item.className = 'doc-item';
+    item.className = 'p-doc-item';
     item.innerHTML = `
-      <div class="doc-icon"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <div class="doc-info"><div class="doc-title">${title}</div><div class="doc-date">${date}</div></div>
-      ${doc.session_id !== 'default' ? `<button class="doc-del" onclick="delDoc(${doc.id},event)"><svg viewBox="0 0 24 24" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>` : ''}`;
+      <div class="p-sticky" style="background:${colors[i%5]}20;color:${colors[i%5]}">📄</div>
+      <span class="p-doc-name">${title}</span>
+      ${doc.session_id!=='default'?`<button class="p-doc-del" onclick="delDoc(${doc.id},'personal',event)"><svg viewBox="0 0 24 24" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}`;
     list.appendChild(item);
   });
 }
 
-async function delDoc(id, e) {
-  e.stopPropagation();
-  await fetch(`${API}/documents/${id}`, {method:'DELETE'});
-  loadDocs();
+async function askPersonal() {
+  const input = document.getElementById('p-question');
+  const q = input.value.trim(); if (!q) return;
+  const btn = document.getElementById('p-send-btn');
+  input.value=''; input.style.height='auto'; btn.disabled=true;
+  document.getElementById('p-welcome')?.remove();
+  const wrap = document.getElementById('p-chat-wrap');
+  const label = document.getElementById('p-chat-label');
+  if (label.textContent==='Study session') { label.textContent = q.slice(0,40)+(q.length>40?'…':''); }
+
+  const ug = document.createElement('div');
+  ug.className='p-msg-group';
+  ug.innerHTML=`<div class="p-msg-user"><div class="p-msg-user-bubble">${q}</div></div>`;
+  wrap.appendChild(ug); wrap.scrollTop=wrap.scrollHeight;
+
+  const typingEl = document.createElement('div');
+  typingEl.className='p-typing';
+  typingEl.innerHTML=`<div class="p-typing-dots"><div class="p-typing-dot"></div><div class="p-typing-dot"></div><div class="p-typing-dot"></div></div>`;
+  wrap.appendChild(typingEl); wrap.scrollTop=wrap.scrollHeight;
+
+  const bid='pb'+Date.now(), sid2='ps'+Date.now();
+  const ag=document.createElement('div');
+  ag.className='p-msg-group';
+  ag.innerHTML=`<div class="p-msg-ai"><div class="p-ai-avatar">Q</div><div class="p-ai-bubble" id="${bid}"><span class="p-cursor"></span></div></div><div class="p-sources" id="${sid2}"></div><div class="p-msg-time">${nowTime()}</div>`;
+
+  const tq=[]; let done=false, text='', replaced=false;
+  function tick(){
+    if(tq.length>0){text+=tq.shift();const el=document.getElementById(bid);if(el){el.innerHTML=text+'<span class="p-cursor"></span>';}wrap.scrollTop=wrap.scrollHeight;setTimeout(tick,16);}
+    else if(!done)setTimeout(tick,10);
+    else{const el=document.getElementById(bid);if(el)el.innerHTML=text;personalHistory.push({role:'user',content:q},{role:'assistant',content:text});state.personal.history=[...personalHistory];state.personal.chatHTML=wrap.innerHTML;btn.disabled=false;document.getElementById('p-question').focus();}
+  }
+  try {
+    const r=await fetch(`${API}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,top_k:5,history:personalHistory,mode:'personal',session_id:SID})});
+    if(!r.ok) throw new Error('No relevant documents found. Please attach a document first.');
+    typingEl.replaceWith(ag); replaced=true; tick();
+    const reader=r.body.getReader(),decoder=new TextDecoder();
+    while(true){const{done:d,value}=await reader.read();if(d)break;const chunk=decoder.decode(value);for(const line of chunk.split('\n').filter(l=>l.startsWith('data: '))){try{const data=JSON.parse(line.slice(6));if(data.type==='sources'){const row=document.getElementById(sid2);if(row)row.innerHTML=data.sources.map(s=>`<span class="p-source-chip">${s.title.replace(/_/g,' ')} ${Math.max(0,Math.round(s.similarity*100))}%</span>`).join('');}if(data.type==='token')tq.push(data.token);if(data.type==='done')done=true;}catch(e){}}}
+  } catch(err){if(!replaced)typingEl.replaceWith(ag);tick();done=true;text=`<span style="color:#c4a882;font-style:italic">${err.message}</span>`;const el=document.getElementById(bid);if(el)el.innerHTML=text;btn.disabled=false;}
 }
 
+// ── JOBS MODE LOGIC ──
+let jobsHistory = [];
+let jobCards = [];
+
+const jobsSugg = [
+  'What data engineer jobs are available in DC?',
+  'Which agencies are hiring machine learning engineers?',
+  'What Python skills do federal agencies require?',
+  'What is the salary range for federal cybersecurity roles?'
+];
+
+function renderJobsWelcome() {
+  const wrap = document.getElementById('w-chat-wrap');
+  wrap.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'w-welcome';
+  el.innerHTML = `
+    <div class="w-system-line">system initialized · usajobs_feed connected</div>
+    <div class="w-system-line">vector_index loaded · llm_stream ready</div>
+    <h2 class="w-welcome-title">WAR <span>ROOM</span></h2>
+    <p class="w-welcome-sub">// DC federal tech jobs intelligence feed<br/>// Query the live job database. Ask anything.</p>
+    <div class="w-suggestions">
+      ${jobsSugg.map(s=>`<button class="w-suggestion" onclick="useWSugg(this)">${s}</button>`).join('')}
+    </div>`;
+  wrap.appendChild(el);
+  document.getElementById('w-chat-label').textContent = 'querymind://war-room/new-session';
+}
+
+function clearJobsChat() {
+  state.jobs = { history: [], chatHTML: '', title: 'querymind://war-room/new-session' };
+  jobsHistory = [];
+  renderJobsWelcome();
+}
+
+function useWSugg(btn) {
+  const t = btn.textContent.replace(/^\$ /,'').trim();
+  document.getElementById('w-question').value = t;
+  askJobs();
+}
+
+function handleWKey(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();askJobs()} }
+
+async function loadJobsDocs() {
+  try {
+    const r = await fetch(`${API}/documents?mode=jobs&session_id=${SID}`);
+    const d = await r.json();
+    renderJobCards(d.documents);
+  } catch(e) {}
+}
+
+function renderJobCards(docs) {
+  const feed = document.getElementById('j-feed-scroll');
+  const empty = document.getElementById('j-feed-empty');
+  feed.querySelectorAll('.job-card').forEach(e => e.remove());
+  if (!docs||!docs.length){empty.style.display='block';return}
+  empty.style.display='none';
+  jobCards = docs;
+  docs.slice(0,40).forEach(doc => {
+    const title = doc.title.replace(/_/g,' ');
+    const parts = title.split(' — ');
+    const jobTitle = parts[0] || title;
+    const agency = parts[1] || '';
+    const card = document.createElement('div');
+    card.className = 'job-card';
+    card.onclick = () => queryAboutJob(jobTitle, agency);
+    card.innerHTML = `
+      ${agency?`<div class="jc-agency">${agency.slice(0,40)}</div>`:''}
+      <div class="jc-title">${jobTitle}</div>
+      <div class="jc-meta">
+        <span class="jc-tag">IT</span>
+        <span class="jc-tag">DC</span>
+        <span class="jc-salary">→ query</span>
+      </div>`;
+    feed.appendChild(card);
+  });
+}
+
+function queryAboutJob(title, agency) {
+  const q = `Tell me about the ${title}${agency?' at '+agency:''} job — requirements, salary, and duties`;
+  document.getElementById('w-question').value = q;
+  askJobs();
+}
+
+async function askJobs() {
+  const input = document.getElementById('w-question');
+  const q = input.value.trim(); if (!q) return;
+  const btn = document.getElementById('w-send-btn');
+  input.value=''; input.style.height='auto'; btn.disabled=true;
+  document.getElementById('w-welcome')?.remove();
+  const wrap = document.getElementById('w-chat-wrap');
+  const label = document.getElementById('w-chat-label');
+  if (label.textContent.includes('new-session')) { label.textContent = 'querymind://'+q.slice(0,35).replace(/\s/g,'-').toLowerCase(); }
+
+  const ug=document.createElement('div');
+  ug.className='w-msg-group';
+  ug.innerHTML=`<div class="w-msg-user"><div class="w-user-prompt">${q}</div></div>`;
+  wrap.appendChild(ug); wrap.scrollTop=wrap.scrollHeight;
+
+  const typingEl=document.createElement('div');
+  typingEl.className='w-typing';
+  typingEl.innerHTML=`<div class="w-typing-label">processing<span class="w-blink"></span></div>`;
+  wrap.appendChild(typingEl); wrap.scrollTop=wrap.scrollHeight;
+
+  const bid='wb'+Date.now(), sid2='ws'+Date.now();
+  const ag=document.createElement('div');
+  ag.className='w-msg-group';
+  ag.innerHTML=`<div class="w-msg-ai"><div class="w-ai-label">response</div><div class="w-ai-text" id="${bid}"><span class="w-cursor"></span></div></div><div class="w-sources" id="${sid2}"></div><div class="w-msg-time">${nowTime()}</div>`;
+
+  const tq=[]; let done=false, text='', replaced=false;
+  function tick(){
+    if(tq.length>0){text+=tq.shift();const el=document.getElementById(bid);if(el){el.innerHTML=text+'<span class="w-cursor"></span>';}wrap.scrollTop=wrap.scrollHeight;setTimeout(tick,16);}
+    else if(!done)setTimeout(tick,10);
+    else{const el=document.getElementById(bid);if(el)el.innerHTML=text;jobsHistory.push({role:'user',content:q},{role:'assistant',content:text});state.jobs.history=[...jobsHistory];state.jobs.chatHTML=wrap.innerHTML;btn.disabled=false;document.getElementById('w-question').focus();}
+  }
+  try {
+    const r=await fetch(`${API}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,top_k:5,history:jobsHistory,mode:'jobs',session_id:SID})});
+    if(!r.ok) throw new Error('No job data found. The feed may be empty.');
+    typingEl.replaceWith(ag); replaced=true; tick();
+    const reader=r.body.getReader(),decoder=new TextDecoder();
+    while(true){const{done:d,value}=await reader.read();if(d)break;const chunk=decoder.decode(value);for(const line of chunk.split('\n').filter(l=>l.startsWith('data: '))){try{const data=JSON.parse(line.slice(6));if(data.type==='sources'){const row=document.getElementById(sid2);if(row)row.innerHTML=data.sources.map(s=>`<span class="w-source-chip">${s.title.replace(/_/g,' ').slice(0,35)} ${Math.max(0,Math.round(s.similarity*100))}%</span>`).join('');}if(data.type==='token')tq.push(data.token);if(data.type==='done')done=true;}catch(e){}}}
+  } catch(err){if(!replaced)typingEl.replaceWith(ag);tick();done=true;text=`<span style="color:#3d6b56">// ${err.message}</span>`;const el=document.getElementById(bid);if(el)el.innerHTML=text;btn.disabled=false;}
+}
+
+// ── SHARED ──
+async function delDoc(id, m, e) {
+  e.stopPropagation();
+  await fetch(`${API}/documents/${id}`, {method:'DELETE'});
+  if (m==='personal') loadPersonalDocs(); else loadJobsDocs();
+}
+
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function nowTime() { return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+
+// upload
 function openUpload() { document.getElementById('u-overlay').classList.add('open'); }
 function closeUpload() {
   document.getElementById('u-overlay').classList.remove('open');
-  selectedFile = null;
-  document.getElementById('file-input').value = '';
-  document.getElementById('doc-title').value = '';
-  document.getElementById('submit-btn').disabled = true;
-  document.getElementById('prog-bar').style.display = 'none';
-  document.getElementById('prog-fill').style.width = '0%';
-  document.getElementById('status-msg').textContent = '';
-  document.getElementById('status-msg').className = 'status-msg';
-  document.getElementById('drop-zone').querySelector('.dz-text').innerHTML = '<span>Click to browse</span> or drag & drop';
+  selectedFile=null;
+  document.getElementById('file-input').value='';
+  document.getElementById('doc-title').value='';
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('prog-bar').style.display='none';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('status-msg').textContent='';
+  document.getElementById('status-msg').className='status-msg';
+  document.getElementById('drop-zone').querySelector('.dz-text').innerHTML='<span>Click to browse</span> or drag & drop';
 }
-function closeUploadIfBg(e) { if (e.target === document.getElementById('u-overlay')) closeUpload(); }
-function dragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
-function dragLeave() { document.getElementById('drop-zone').classList.remove('dragover'); }
-function dropFile(e) { e.preventDefault(); document.getElementById('drop-zone').classList.remove('dragover'); const f = e.dataTransfer.files[0]; if(f) handleFile(f); }
-function fileSelected(e) { handleFile(e.target.files[0]); }
-function handleFile(file) {
-  selectedFile = file;
-  document.getElementById('doc-title').value = file.name.replace(/\.[^/.]+$/,'');
-  document.getElementById('drop-zone').querySelector('.dz-text').innerHTML = `<span>${file.name}</span>`;
-  document.getElementById('submit-btn').disabled = false;
+function closeUploadIfBg(e){if(e.target===document.getElementById('u-overlay'))closeUpload()}
+function dragOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('dragover')}
+function dragLeave(){document.getElementById('drop-zone').classList.remove('dragover')}
+function dropFile(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)handleFile(f)}
+function fileSelected(e){handleFile(e.target.files[0])}
+function handleFile(file){
+  selectedFile=file;
+  document.getElementById('doc-title').value=file.name.replace(/\.[^/.]+$/,'');
+  document.getElementById('drop-zone').querySelector('.dz-text').innerHTML=`<span>${file.name}</span>`;
+  document.getElementById('submit-btn').disabled=false;
 }
-
-async function submitUpload() {
-  if (!selectedFile) return;
-  const title = document.getElementById('doc-title').value.trim() || selectedFile.name;
-  const btn = document.getElementById('submit-btn');
-  const prog = document.getElementById('prog-bar');
-  const fill = document.getElementById('prog-fill');
-  const status = document.getElementById('status-msg');
-  btn.disabled = true; prog.style.display = 'block'; fill.style.width = '30%';
-  status.textContent = 'Uploading...';
+async function submitUpload(){
+  if(!selectedFile) return;
+  const title=document.getElementById('doc-title').value.trim()||selectedFile.name;
+  const btn=document.getElementById('submit-btn');
+  const prog=document.getElementById('prog-bar');
+  const fill=document.getElementById('prog-fill');
+  const status=document.getElementById('status-msg');
+  btn.disabled=true;prog.style.display='block';fill.style.width='30%';status.textContent='Uploading...';
   try {
-    const fd = new FormData();
-    fd.append('file', selectedFile);
-    fd.append('title', title);
-    fd.append('session_id', SID);
-    fill.style.width = '65%';
-    status.textContent = 'Chunking & embedding...';
-    const r = await fetch(`${API}/upload`, {method:'POST', body: fd});
-    fill.style.width = '100%';
-    if (r.ok) {
-      const d = await r.json();
-      status.textContent = `✓ ${d.message}`;
-      status.className = 'status-msg ok';
-      loadDocs();
-      setTimeout(closeUpload, 1400);
-    } else {
-      const err = await r.json();
-      throw new Error(err.detail || 'Upload failed');
-    }
-  } catch(err) {
-    status.textContent = '✗ ' + err.message;
-    status.className = 'status-msg err';
-    btn.disabled = false;
-  }
+    const fd=new FormData();fd.append('file',selectedFile);fd.append('title',title);fd.append('session_id',SID);
+    fill.style.width='65%';status.textContent='Chunking & embedding...';
+    const r=await fetch(`${API}/upload`,{method:'POST',body:fd});
+    fill.style.width='100%';
+    if(r.ok){const d=await r.json();status.textContent=`✓ ${d.message}`;status.className='status-msg ok';loadPersonalDocs();setTimeout(closeUpload,1400);}
+    else{const err=await r.json();throw new Error(err.detail||'Upload failed');}
+  } catch(err){status.textContent='✗ '+err.message;status.className='status-msg err';btn.disabled=false;}
 }
 
-function nowTime() {
-  return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-}
+// mobile
+function togglePSidebar(){document.getElementById('doc-strip').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
+function toggleWFeed(){document.getElementById('job-feed').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
+function closeSidebars(){document.getElementById('doc-strip').classList.remove('open');document.getElementById('job-feed').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open')}
 
-async function askQuestion() {
-  const input = document.getElementById('question');
-  const q = input.value.trim();
-  if (!q) return;
-  const btn = document.getElementById('send-btn');
-  input.value = ''; input.style.height = 'auto'; btn.disabled = true;
-  const welcome = document.getElementById('welcome');
-  if (welcome) welcome.remove();
-  const wrap = document.getElementById('chat-wrap');
-  const label = document.getElementById('chat-label');
-  if (label.textContent === 'New conversation') {
-    const t = q.slice(0,42) + (q.length>42?'…':'');
-    label.textContent = t;
-    modeState[mode].title = t;
-  }
-  const ug = document.createElement('div');
-  ug.className = 'msg-group';
-  ug.innerHTML = `<div class="msg-row user"><div class="bubble">${q}</div><div class="avatar user">You</div></div><div class="msg-time" style="text-align:right">${nowTime()}</div>`;
-  wrap.appendChild(ug); wrap.scrollTop = wrap.scrollHeight;
-  const typingEl = document.createElement('div');
-  typingEl.className = 'typing';
-  typingEl.innerHTML = `<div class="avatar ai">DQ</div><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
-  wrap.appendChild(typingEl); wrap.scrollTop = wrap.scrollHeight;
-  const bid = 'b' + Date.now(), sid = 's' + Date.now();
-  const ag = document.createElement('div');
-  ag.className = 'msg-group';
-  ag.innerHTML = `<div class="msg-row ai"><div class="avatar ai">DQ</div><div class="bubble" id="${bid}"><span class="cursor"></span></div></div><div class="sources-row" id="${sid}"></div><div class="msg-time">${nowTime()}</div>`;
-  const tq = []; let done = false, text = '', replaced = false;
-  function tick() {
-    if (tq.length > 0) {
-      text += tq.shift();
-      const el = document.getElementById(bid);
-      if (el) { el.innerHTML = text + '<span class="cursor"></span>'; }
-      wrap.scrollTop = wrap.scrollHeight;
-      setTimeout(tick, 16);
-    } else if (!done) {
-      setTimeout(tick, 10);
-    } else {
-      const el = document.getElementById(bid);
-      if (el) el.innerHTML = text;
-      history.push({role:'user',content:q});
-      history.push({role:'assistant',content:text});
-      modeState[mode].history = [...history];
-      modeState[mode].chatHTML = wrap.innerHTML;
-      btn.disabled = false;
-      input.focus();
-    }
-  }
-  try {
-    const r = await fetch(`${API}/query`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({question:q, top_k:5, history, mode, session_id:SID})
-    });
-    if (!r.ok) throw new Error('No relevant documents found in knowledge base.');
-    typingEl.replaceWith(ag); replaced = true; tick();
-    const reader = r.body.getReader(), decoder = new TextDecoder();
-    while(true) {
-      const {done:d, value} = await reader.read();
-      if (d) break;
-      const chunk = decoder.decode(value);
-      for (const line of chunk.split('\n').filter(l => l.startsWith('data: '))) {
-        try {
-          const data = JSON.parse(line.slice(6));
-          if (data.type === 'sources') {
-            const row = document.getElementById(sid);
-            if (row) row.innerHTML = data.sources.map(s => {
-              const pct = Math.max(0, Math.round(s.similarity * 100));
-              const cls = pct >= 50 ? '' : pct >= 25 ? 'medium' : 'low';
-              return `<div class="source-chip"><div class="score-bar"><div class="score-fill ${cls}" style="width:${pct}%"></div></div><span>${s.title.replace(/_/g,' ')}</span><span class="source-score">${pct}%</span></div>`;
-            }).join('');
-          }
-          if (data.type === 'token') tq.push(data.token);
-          if (data.type === 'done') done = true;
-        } catch(e) {}
-      }
-    }
-  } catch(err) {
-    if (!replaced) typingEl.replaceWith(ag);
-    tick(); done = true;
-    text = `<span style="color:#dc2626">${err.message}</span>`;
-    const el = document.getElementById(bid);
-    if (el) el.innerHTML = text;
-    btn.disabled = false;
-  }
-}
-
-if (mode === 'jobs') {
-  applySwitch('jobs');
-} else {
-  renderWelcome();
-  loadDocs();
-}
-setInterval(loadDocs, 3000);
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebar-overlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-}
+setInterval(() => { if(mode==='personal') loadPersonalDocs(); else loadJobsDocs(); }, 3000);
+init();
 </script>
 </body>
 </html>
