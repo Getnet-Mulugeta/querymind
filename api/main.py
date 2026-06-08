@@ -157,7 +157,7 @@ def list_documents(mode: str = "personal", session_id: str = "default", conn=Dep
     if mode == "jobs":
         docs = execute_query(conn, "SELECT id, title, source, created_at, mode FROM documents WHERE mode = %s ORDER BY created_at DESC", (mode,))
     else:
-        docs = execute_query(conn, "SELECT id, title, source, created_at, mode FROM documents WHERE mode = %s AND (session_id = %s OR session_id = 'default') ORDER BY created_at DESC", (mode, session_id))
+        docs = execute_query(conn, "SELECT id, title, source, created_at, mode, session_id FROM documents WHERE mode = %s AND app = 'querymind' AND (session_id = %s OR session_id = 'default') ORDER BY created_at DESC", (mode, session_id))
     return {"documents": docs}
 
 @app.delete("/documents/{document_id}")
